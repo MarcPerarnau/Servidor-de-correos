@@ -49,7 +49,7 @@ network:
 ```
 ![Imagen](source/configuraciónIP.png)
 
-Cuando todo este configurado salimos con `Ctrl` + `O` y ``Ctrl` + `X`
+Cuando todo este configurado salimos con `Ctrl` + `o` y `Ctrl` + `X`
 
 - Una vez acabada la configuración de la IP fija ejecutaremos un `netplan apply` para confirmar la configuración exitosa. 
 
