@@ -93,7 +93,7 @@ sudo apt install isc-dhcp-server -y
 sudo apt install postfix dovecot-imapd mailutils maildir-utils -y
 ```
 
-![Imagen](source/postifx.png)
+![Imagen](source/postfix.png)
 
 - Nos va a salir un pop-up deberemos escojer la opción `Sitio de Internet` y tendremos que añadir nuestro dominio.
 
