@@ -24,3 +24,11 @@ Este documento detalla los pasos necesarios para configurar un servidor con serv
 # Instalación y Configuración
 
 A continuación, se detallan los pasos para la instalación y configuración de cada servicio.
+
+## Configuración de a IP fija
+
+- Deberemos editar el archivo `/etc/netplan/00-installer-config.yaml`
+```
+sudo nano /etc/netplan/00-installer-config.yaml
+```
+![Imagen](source/netplan.png)
