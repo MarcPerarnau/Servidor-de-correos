@@ -45,7 +45,7 @@ network:
         - to: default
           via: Tu-Gatawey
       nameservers:
-        addresses: [1.1.1.1, Tu-IP]
+        addresses: [ 1.1.1.1, Tu-IP ]
 ```
 ![Imagen](source/configuraciónIP.png)
 
@@ -73,4 +73,28 @@ sudo apt update && sudo apt full-upgrade -y
 ```
 ![Imagen](source/actualización.png)
 
+- Instalamos bind9 para el servidor de DNS y algunos de sus paquetes.
+```bash
+sudo apt install bind9 bind9-utils bind9-doc -y
+```
 
+![Imagen](source/bin9.png)
+
+- Ahora deberemos instalar `isc-dhcp-server`
+```bash
+sudo apt install isc-dhcp-server -y
+```
+
+![Imagen](source/dhcp.png)
+
+- Ahora procedemos a instalar `Postfix` `Dovecot` `Maildir` y `Mailutils`
+
+```bash
+sudo apt install postfix dovecot-imapd mailutils maildir-utils -y
+```
+
+![Imagen](source/postifx.png)
+
+- Nos va a salir un pop-up deberemos escojer la opción `Sitio de Internet` y tendremos que añadir nuestro dominio.
+
+![Imagen](source/dominio.png)
