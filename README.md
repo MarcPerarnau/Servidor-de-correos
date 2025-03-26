@@ -98,3 +98,158 @@ sudo apt install postfix dovecot-imapd mailutils maildir-utils -y
 - Nos va a salir un pop-up deberemos escojer la opción `Sitio de Internet` y tendremos que añadir nuestro dominio.
 
 ![Imagen](source/dominio.png)
+
+- Por ultimo debemos instalar opnssl
+```bash
+sudo apt install openssl
+```
+
+![Imagen](source/openssl)
+
+## Configuración de DHCP
+
+- Editamos el archivo `/etc/default/isc-dhcp-server` y deveremos añadir al lado de `INTERACESv4=` nuestro adaptador de red. 
+```bash
+sudo nano /etc/default/isc-dhcp-server
+```
+![Imagen](source/)
+
+- Hacemos un backup del archivo `dhcpd.conf`.
+```bash
+sudo cp /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.BKP
+```
+
+![Imagen](source/)
+
+- Ahora editaremos el archivo anterior.
+```bash
+sudo nano /etc/dhcp/dhcpd.conf
+```
+![Imagen](source/)
+
+- Eliminamos todo y agregamos lo siguiente. 
+```bash
+option domain-name "chupipandi.local";
+option domain-name-servers ns1.chupipandi.local;
+
+authoritative;
+
+subnet 10.10.10.0 netmask 255.255.255.0 {
+    range 10.10.10.100 10.10.10.200;
+    option domain-name-servers 10.10.10.10; #lo dejaremos configurado para poder usarlo como DNS
+    option subnet-mask 255.255.255.0;
+    option routers 10.10.10.1;
+    option broadcast-address 10.10.10.255; #lo mismo con el broadcast
+    default-lease-time 600;
+    max-lease-time 7200;
+}
+```
+
+![Imagen](source/)
+
+- Ejecutamos un `dhcpd -t` para verificar la configuración. 
+```bash
+dhcpd -t
+```
+![Imagen](source/)
+
+- Reiniciamos el servicio de dhcp
+```bash
+sudo systemctl restart isc-dhcp-server
+```
+
+- Comprobamos el estado del dhcp.
+```bash
+sudo systemctl status isc-dhcp-server
+```
+
+![Imagen](source/)
+
+## Configuración DNS
+
+- Editamos el archivo `named.conf.options` y añadimos lo siguiente. 
+```bash
+sudo nano /etc/bind/named.conf.options
+```
+
+![Imagen](source/)
+
+```bash
+// creamos ACL que permita solo el tráfico LAN de 10.10.10.10 - 10.10.10.255
+options {
+    listen-on { any; };
+    directory "/var/cache/bind";
+    allow-query { localhost; LAN; }; 
+    recursion yes; 
+    forwarders { 1.1.1.1; };
+    
+};
+
+acl LAN {
+    10.10.10.0/24;
+};
+```
+
+![Imagen](source/)
+
+Guardamos y cerramos con `Ctrl` + `o` y `Ctrl` + `x`
+
+- Editamos el archivo `named` y añadimos en la linea `OPTIONS=` `-u bind -4`
+```bash
+sudo nano /etc/default/named
+```
+
+![Imagen](source/)
+
+
+- Hacemos un `named-checkconf` al archivo `named.conf.options`
+```bash
+sudo named-checkconf /etc/bind/named.conf.options
+```
+
+![Imagen](source/)
+
+- Reiniciamos el servicio de bind9 y verificiamos su estado
+```bash
+sudo systemctl restart bind9
+systemctl status bind9
+```
+
+![Imagen](source/)
+
+- Editamos el archivo `named.conf.local` y añadimos lo siguiente.
+```bash 
+sudo nano /etc/bind/named.conf.local
+``` 
+
+![Imagen](source/)
+
+```bash
+//zona directa
+zone "chupipandi.local" in {
+    type master;
+    file "/etc/bind/zonas/db.chupipandi.local";
+};
+
+//Zona inversa
+zone "10.10.10.in-addr.arpa" {
+    type master;
+    file "/etc/bind/zonas/db.10.10.10";
+};
+
+```
+
+- Creamos el directorio de las dos zonas.
+```bash 
+sudo mkdir /etc/bind/zonas
+```
+
+![Imagen](source/)
+
+- Copiamos el archivo `db.empty` cambiandole el nombre a `db.chupipandi.local` y el `db.127` cambiandole el nombre a `db.10.10.10`
+```bash
+sudo cp /etc/bind/db.empty /etc/bind/zonas/db.elenadns.local
+sudo cp /etc/bind/db.127 /etc/bind/zonas/db.10.10.10
+```
+
+![Imagen](source/)
