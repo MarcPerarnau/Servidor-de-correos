@@ -248,8 +248,45 @@ sudo mkdir /etc/bind/zonas
 
 - Copiamos el archivo `db.empty` cambiandole el nombre a `db.chupipandi.local` y el `db.127` cambiandole el nombre a `db.10.10.10`
 ```bash
-sudo cp /etc/bind/db.empty /etc/bind/zonas/db.elenadns.local
+sudo cp /etc/bind/db.empty /etc/bind/zonas/db.chupipandi.local
 sudo cp /etc/bind/db.127 /etc/bind/zonas/db.10.10.10
 ```
 
 ![Imagen](source/)
+
+- Editamos el archivo `db.chupipandi.local` y añadimos los siguiente.
+```bash
+sudo nano /etc/bind/zonas/db.chupipandi.local
+```
+![Imagen](source/)
+
+```bash
+$TTL    86400
+@       IN      SOA     chupipandi.local. root.chupipandi.local. (
+                              2024100701 ; Serial (Formato AAMMDDnn)
+                              604800     ; Refresh (cada 7 días)
+                              86400      ; Retry (cada 1 día)
+                              2419200    ; Expire (28 días)
+                              604800 )   ; Negative Cache TTL (7 días)
+                              
+; Registro NS
+@       IN      NS      ns1.chupipandi.local.
+
+; Registro A para el dominio base
+@       IN      A       10.10.10.5
+
+; Registros A adicionales
+ns1        IN      A       10.10.10.5
+www        IN      CNAME   chupipandi.local. ;Esto apuntara www.chupipandi.local a la IP del dominio base
+mail       IN      A       10.10.10.5
+
+; Registro MX para correos
+@       IN      MX  10  mail.chupipandi.local.
+
+; Cliente
+client    IN      A  10.10.10.10
+
+```
+
+![Imagen](source/)
+
