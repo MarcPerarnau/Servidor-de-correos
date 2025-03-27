@@ -104,7 +104,7 @@ sudo apt install postfix dovecot-imapd mailutils maildir-utils -y
 sudo apt install openssl
 ```
 
-![Imagen](source/openssl)
+![Imagen](source/openssl.png)
 
 ## Configuración de DHCP
 
@@ -112,20 +112,19 @@ sudo apt install openssl
 ```bash
 sudo nano /etc/default/isc-dhcp-server
 ```
-![Imagen](source/)
+![Imagen](source/dhcp1.png)
 
 - Hacemos un backup del archivo `dhcpd.conf`.
 ```bash
 sudo cp /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.BKP
 ```
 
-![Imagen](source/)
+![Imagen](source/bk.png)
 
 - Ahora editaremos el archivo anterior.
 ```bash
 sudo nano /etc/dhcp/dhcpd.conf
 ```
-![Imagen](source/)
 
 - Eliminamos todo y agregamos lo siguiente. 
 ```bash
@@ -145,13 +144,13 @@ subnet 10.10.10.0 netmask 255.255.255.0 {
 }
 ```
 
-![Imagen](source/)
+![Imagen](source/dhcp2.png)
 
 - Ejecutamos un `dhcpd -t` para verificar la configuración. 
 ```bash
 dhcpd -t
 ```
-![Imagen](source/)
+![Imagen](source/dhcp3.png)
 
 - Reiniciamos el servicio de dhcp
 ```bash
@@ -163,17 +162,15 @@ sudo systemctl restart isc-dhcp-server
 sudo systemctl status isc-dhcp-server
 ```
 
-![Imagen](source/)
+![Imagen](source/dhcp4.png)
 
 ## Configuración DNS
 
-- Editamos el archivo `named.conf.options` y añadimos lo siguiente. 
+- Editamos el archivo `named.conf.options`  
 ```bash
 sudo nano /etc/bind/named.conf.options
 ```
-
-![Imagen](source/)
-
+añadimos lo siguiente.
 ```bash
 // creamos ACL que permita solo el tráfico LAN de 10.10.10.10 - 10.10.10.255
 options {
@@ -190,7 +187,7 @@ acl LAN {
 };
 ```
 
-![Imagen](source/)
+![Imagen](source/dns.png)
 
 Guardamos y cerramos con `Ctrl` + `o` y `Ctrl` + `x`
 
@@ -199,7 +196,7 @@ Guardamos y cerramos con `Ctrl` + `o` y `Ctrl` + `x`
 sudo nano /etc/default/named
 ```
 
-![Imagen](source/)
+![Imagen](source/dns1.png)
 
 
 - Hacemos un `named-checkconf` al archivo `named.conf.options`
@@ -207,7 +204,7 @@ sudo nano /etc/default/named
 sudo named-checkconf /etc/bind/named.conf.options
 ```
 
-![Imagen](source/)
+![Imagen](source/dns2.png)
 
 - Reiniciamos el servicio de bind9 y verificiamos su estado
 ```bash
@@ -215,14 +212,14 @@ sudo systemctl restart bind9
 systemctl status bind9
 ```
 
-![Imagen](source/)
+![Imagen](source/dns3.png)
 
 - Editamos el archivo `named.conf.local` y añadimos lo siguiente.
 ```bash 
 sudo nano /etc/bind/named.conf.local
 ``` 
 
-![Imagen](source/)
+![Imagen](source/dns4.png)
 
 ```bash
 //zona directa
@@ -244,7 +241,7 @@ zone "10.10.10.in-addr.arpa" {
 sudo mkdir /etc/bind/zonas
 ```
 
-![Imagen](source/)
+![Imagen](source/dns5.png)
 
 - Copiamos el archivo `db.empty` cambiandole el nombre a `db.chupipandi.local` y el `db.127` cambiandole el nombre a `db.10.10.10`
 ```bash
@@ -252,14 +249,13 @@ sudo cp /etc/bind/db.empty /etc/bind/zonas/db.chupipandi.local
 sudo cp /etc/bind/db.127 /etc/bind/zonas/db.10.10.10
 ```
 
-![Imagen](source/)
+![Imagen](source/dns6.png)
 
-- Editamos el archivo `db.chupipandi.local` y añadimos los siguiente.
+- Editamos el archivo `db.chupipandi.local`
 ```bash
 sudo nano /etc/bind/zonas/db.chupipandi.local
 ```
-![Imagen](source/)
-
+añadimos los siguiente.
 ```bash
 $TTL    86400
 @       IN      SOA     chupipandi.local. root.chupipandi.local. (
@@ -288,14 +284,13 @@ client    IN      A  10.10.10.10
 
 ```
 
-![Imagen](source/)
+![Imagen](source/dns7.png)
 
-- Editamos el archivo `db.10.10.10` y añadimos los siguiente.
+- Editamos el archivo `db.10.10.10`
 ```bash
 sudo nano /etc/bind/zonas/db.10.10.10
 ```
-
-![Image](source/)
+añadimos los siguiente.
 
 ```bash
 $TTL    604800 ;
@@ -315,23 +310,23 @@ ns1     IN      A       10.10.10.5
 100      IN      PTR     client.chupipandi.local.
 ```
 
-![Imagen](source/)
+![Imagen](source/dns8.png)
 
 - Editamos el archivo `resolv.conf` y eliminamos todo y añadimos `nameserver IP-Servidor`
 
-![Imagen](source/)
+![Imagen](source/dns9.png)
 
 - Chekeamos que toda la configuracion este correcta.
 ```bash
 sudo named-checkzone chupipandi.local /etc/bind/zonas/db.10.10.10
 ```
-![Imagen](source/)
+![Imagen](source/dns10.png)
 
 - Creamos un enlaze simboico de `resolv.conf`
 ```bash
 sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 ```
-![Imagen](source/)
+![Imagen](source/dns11.png)
 
 - Reiniciamos el servicio de bind9
 ```bash
@@ -343,7 +338,7 @@ sudo systemctl restart bind9
 nslookup ns1.chupipandi.local
 nslookup mail.chupipandi.local
 ```
-![Imagen](source/)
+![Imagen](source/dns12.png)
 
 ## Configuración de Correo
 
