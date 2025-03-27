@@ -136,7 +136,7 @@ authoritative;
 
 subnet 10.10.10.0 netmask 255.255.255.0 {
     range 10.10.10.100 10.10.10.200;
-    option domain-name-servers 10.10.10.10; #lo dejaremos configurado para poder usarlo como DNS
+    option domain-name-servers 10.10.10.5; #lo dejaremos configurado para poder usarlo como DNS
     option subnet-mask 255.255.255.0;
     option routers 10.10.10.1;
     option broadcast-address 10.10.10.255; #lo mismo con el broadcast
@@ -289,4 +289,88 @@ client    IN      A  10.10.10.10
 ```
 
 ![Imagen](source/)
+
+- Editamos el archivo `db.10.10.10` y añadimos los siguiente.
+```bash
+sudo nano /etc/bind/zonas/db.10.10.10
+```
+
+![Image](source/)
+
+```bash
+$TTL    604800 ;
+@       IN      SOA     chupipandi.local. root.chupipandi.local. (
+                        1               ; Serial
+                        12h             ; Refresh
+                        15m             ; Retry
+                        3w              ; Expire
+                        2h      )       ; Negative Cache TTL
+
+;Registros de zona inversa
+@       IN      NS      ns1.chupipandi.local.
+ns1     IN      A       10.10.10.5
+
+; Registros con IP servidor y 1 cliente
+5       IN      PTR     ns1.chupipandi.local.
+100      IN      PTR     client.chupipandi.local.
+```
+
+![Imagen](source/)
+
+- Editamos el archivo `resolv.conf` y eliminamos todo y añadimos `nameserver IP-Servidor`
+
+![Imagen](source/)
+
+- Chekeamos que toda la configuracion este correcta.
+```bash
+sudo named-checkzone chupipandi.local /etc/bind/zonas/db.10.10.10
+```
+![Imagen](source/)
+
+- Creamos un enlaze simboico de `resolv.conf`
+```bash
+sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+```
+![Imagen](source/)
+
+- Reiniciamos el servicio de bind9
+```bash
+sudo systemctl restart bind9
+```
+
+- Comprobamos mediante `nslookup`
+```bash
+nslookup ns1.chupipandi.local
+nslookup mail.chupipandi.local
+```
+![Imagen](source/)
+
+## Configuración de Correo
+
+- Creamos un backup del archivo `main.cf` y `10-mail.conf`
+```bash
+sudo cp /etc/postfix/main.cf /etc/postfix/main.cf.bkp
+sudo cp /etc/dovecot/conf.d/10-mail.conf /etc/dovecot/conf.d/10-mail.conf.bkp
+```
+
+![Imagen](source/)
+
+- Editamos el archivo main.cf y debemos añadir o modificar lo siguiente.
+  - myhostname = mail.chupipandi.local
+  - mydomain = chupipandi.local
+  - myorigin = $mydomain
+  - mydestination = $myhostname, chupipandi.local, chupipandi, localhost.localdomain, localhost
+  - inet_interfaces = all
+  - inet_protocols = all
+  - home_mailbox = Maildir/
+
+![Imagen](source/)
+
+- Editamos el archivo ``10-mail.conf`` y modificar la siguiente linea.
+```bash
+mail_location = maildir:~/Maildir
+```
+![Imagen](source/)
+
+### Creación de usuarios
 
