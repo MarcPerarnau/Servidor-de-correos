@@ -374,3 +374,21 @@ mail_location = maildir:~/Maildir
 
 ### Creación de usuarios
 
+- Agregamos un nuevo usuario
+```bash
+sudo adduser <nombreusuario>
+```
+
+![Imagen](source/)
+
+- Comprovamos que la configuración este correcta
+```bash
+sudo postfix check
+```
+
+![Imagen](source/)
+
+- Probamos de enviar un correo de un usuario a otro
+```bash
+echo "Hola Elena" | mail -s "Quack" elena@chupipandi.local
+```
